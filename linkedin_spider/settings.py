@@ -12,6 +12,14 @@ BOT_NAME = 'linkedin_spider'
 
 SPIDER_MODULES = ['linkedin_spider.spiders']
 NEWSPIDER_MODULE = 'linkedin_spider.spiders'
-DOWNLOAD_DELAY = 0.25
+#############################
+
+#############################
+RANDOMIZE_DOWNLOAD_DELAY = True
+CONCURRENT_REQUESTS = 2
+CONCURRENT_REQUESTS_PER_IP =2
+DOWNLOAD_DELAY = 0.5
+CONCURRENT_REQUESTS_PER_DOMAIN = 2
+# DNSCACHE_ENABLED =False
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'linkedin_spider (+http://www.yourdomain.com)'
