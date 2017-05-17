@@ -7,20 +7,45 @@ class LinkedinSpider(scrapy.Spider):
     name = "linkedin"
     download_delay = 2
     allowed_domains = ["linkedin.com"]
-    handle_httpstatus_list=[999]
+    handle_httpstatus_list=[999] # without this line the crawler would stop
+    # working since it ignores all the non 200 responses
     start_urls = (
-        'https://www.linkedin.com/jobs/view/270970043/?refId=2c745db4-5cfe-459c-ac45-8b253acc867b&trk=d_flagship3_job_home',
+        'https://www.linkedin.com/jobs/management-jobs',
     )
-
+    def init_driver(self):
+        return webdriver.PhantomJS("phantom/bin/phantomjs")
     def parse(self, response):
         print (response.status)
-        item=LinkedinSpiderItem()
         if response.status==999:
             print ("using selenium to open the site")
             print (response.url)
-            browser =webdriver.PhantomJS("phantom/bin/phantomjs") 
-            excpected_fields=["Industry","Experience"]
+            browser = self.init_driver()
             browser.get(response.url)
+            browser.save_screenshot('test.png')
+            #### testing xpath for finding anchor page elements####
+            # test= browser.find_elements_by_xpath("//a")
+            # for i in  test:
+            #     print (i.get_attribute("href"))
+            try:
+                links=browser.find_elements_by_xpath("//a[@class='job-title-link']")
+                print(type(links),len(links))
+                targets=[]
+                for i in links:
+                    targets.append(i.get_attribute('href'))
+            except:
+                print ("error while fetching links ")
+            if targets:
+                for target_page in targets:
+                    yield scrapy.Request(target_page,callback=self.traverse_page)
+
+
+    def traverse_page(self,response):
+        item=LinkedinSpiderItem()
+        print ("inside traverse pages")
+        if response.status==999:
+            browser= self.init_driver()
+            browser.get(response.url)
+            excpected_fields=["Industry","Experience"]
             for key in excpected_fields:
                 try:
                     target=browser.find_element_by_xpath("//*[text()='{0}']/following::*[1]".format(key))
@@ -28,5 +53,5 @@ class LinkedinSpider(scrapy.Spider):
                 except:
                     print("could not find element{0}".format(key))
 
-            yield  item
-    # define items for export as json
+        yield  item
+        # define items for export as json
