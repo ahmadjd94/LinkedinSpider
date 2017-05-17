@@ -18,7 +18,7 @@ class LinkedinSpider(scrapy.Spider):
         if response.status==999:
             print ("using selenium to open the site")
             print (response.url)
-            browser =webdriver.PhantomJS("phantom/bin/phantomjs")
+            browser =webdriver.PhantomJS("phantom/bin/phantomjs") 
             excpected_fields=["Industry","Experience"]
             browser.get(response.url)
             for key in excpected_fields:
